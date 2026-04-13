@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedAssist AI - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>MedAssist AI</h1>
+            <button id="logoutBtn">Logout</button>
+        </header>
+        <main>
+            <section class="card audio-section">
+                <h2>Audio Capture</h2>
+                <button id="recordBtn">Record</button>
+                <button id="stopBtn" disabled>Stop</button>
+                <input type="file" id="audioUpload" accept="audio/*">
+            </section>
+            <section class="card transcript-section">
+                <h2>Transcript</h2>
+                <div id="transcriptText">--</div>
+            </section>
+            <section class="card ai-section">
+                <h2>AI Suggestions</h2>
+                <div id="aiSymptoms">Symptoms: --</div>
+                <div id="aiDiagnosis">Possible Conditions: --</div>
+            </section>
+            <section class="card report-section">
+                <h2>Medical Report</h2>
+                <div id="reportText">--</div>
+                <button id="downloadReportBtn">Download Report</button>
+            </section>
+            <section class="card history-section">
+                <h2>History</h2>
+                <ul id="historyList"></ul>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
