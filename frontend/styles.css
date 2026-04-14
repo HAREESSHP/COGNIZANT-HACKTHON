@@ -1,55 +1,82 @@
 /* styles.css - MedAssist AI */
 body {
-    background: #f9f9fb;
+    background: linear-gradient(135deg, #e3f0ff 0%, #f9f9fb 100%);
     font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0;
     padding: 0;
+    min-height: 100vh;
 }
 .login-card, .dashboard-container {
     max-width: 400px;
     margin: 60px auto;
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    padding: 32px 24px;
-}
-.login-card h2 {
-    margin-bottom: 24px;
-    color: #1976d2;
-}
-input[type="email"], input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 16px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-button {
-    background: #1976d2;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-right: 8px;
-}
-button:disabled {
-    background: #b0c4de;
-    cursor: not-allowed;
-}
-.error {
-    color: #d32f2f;
-    margin-top: 10px;
+    border-radius: 16px;
+    box-shadow: 0 6px 32px rgba(25, 118, 210, 0.10), 0 1.5px 6px rgba(0,0,0,0.06);
+    padding: 40px 32px;
+    transition: box-shadow 0.2s;
 }
 .dashboard-container {
     max-width: 900px;
     padding: 0 16px 32px 16px;
+}
+.login-card h2 {
+    margin-bottom: 24px;
+    color: #1976d2;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-align: center;
+}
+input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    border: 1px solid #b0c4de;
+    border-radius: 6px;
+    font-size: 1rem;
+    background: #f7faff;
+    transition: border 0.2s;
+}
+input[type="email"]:focus, input[type="password"]:focus {
+    border: 1.5px solid #1976d2;
+    outline: none;
+    background: #fff;
+}
+button {
+    background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+    color: #fff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+button:hover:not(:disabled) {
+    background: linear-gradient(90deg, #1565c0 60%, #1976d2 100%);
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.13);
+    transform: translateY(-2px) scale(1.03);
+}
+button:disabled {
+    background: #b0c4de;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+.error {
+    color: #d32f2f;
+    margin-top: 10px;
+    font-size: 1rem;
+    text-align: center;
 }
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 32px;
+    border-bottom: 2px solid #e3eafc;
+    padding-bottom: 12px;
 }
 main {
     display: flex;
@@ -58,14 +85,46 @@ main {
 }
 .card {
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
+    padding: 24px 20px;
     flex: 1 1 250px;
     min-width: 250px;
     margin-bottom: 16px;
+    transition: box-shadow 0.2s, transform 0.1s;
 }
-@media (max-width: 700px) {
+.card:hover {
+    box-shadow: 0 8px 32px rgba(25, 118, 210, 0.13);
+    transform: translateY(-2px) scale(1.01);
+}
+.audio-section h2, .transcript-section h2, .ai-section h2, .report-section h2, .history-section h2 {
+    color: #1976d2;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+#transcriptText, #aiSymptoms, #aiDiagnosis, #reportText {
+    background: #f7faff;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    min-height: 32px;
+    font-size: 1rem;
+}
+#historyList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+#historyList li {
+    background: #f7faff;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    font-size: 0.97rem;
+    color: #333;
+}
+@media (max-width: 900px) {
     .dashboard-container {
         max-width: 100%;
         padding: 0 4px;
