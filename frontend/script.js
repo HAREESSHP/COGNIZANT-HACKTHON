@@ -1,13 +1,36 @@
 // script.js - MedAssist AI
 
-// --- Login Logic ---
+
+// --- Login/Signup/Forgot Password UI Logic ---
 document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching
+    const signInTab = document.getElementById('signInTab');
+    const signUpTab = document.getElementById('signUpTab');
+    const signInFormContainer = document.getElementById('signInFormContainer');
+    const signUpFormContainer = document.getElementById('signUpFormContainer');
+    if (signInTab && signUpTab) {
+        signInTab.addEventListener('click', function() {
+            signInTab.classList.add('active');
+            signUpTab.classList.remove('active');
+            signInFormContainer.style.display = '';
+            signUpFormContainer.style.display = 'none';
+        });
+        signUpTab.addEventListener('click', function() {
+            signUpTab.classList.add('active');
+            signInTab.classList.remove('active');
+            signUpFormContainer.style.display = '';
+            signInFormContainer.style.display = 'none';
+        });
+    }
+
+    // Login logic
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            // TODO: Add loading state
             const res = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -20,6 +43,72 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 document.getElementById('loginError').innerText = data.detail || 'Login failed';
             }
+        });
+    }
+
+    // Sign Up logic (basic UI, backend integration needed)
+    const signUpForm = document.getElementById('signUpForm');
+    if (signUpForm) {
+        signUpForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('signUpEmail').value;
+            const password = document.getElementById('signUpPassword').value;
+            const confirmPassword = document.getElementById('signUpConfirmPassword').value;
+            const errorDiv = document.getElementById('signUpError');
+            errorDiv.innerText = '';
+            if (password !== confirmPassword) {
+                errorDiv.innerText = 'Passwords do not match.';
+                return;
+            }
+            // TODO: Add backend integration for signup
+            errorDiv.innerText = 'Sign up functionality coming soon.';
+        });
+    }
+
+    // Forgot Password modal logic
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+    const closeModal = document.getElementById('closeModal');
+    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+    const sendOtpBtn = document.getElementById('sendOtpBtn');
+    const otpSection = document.getElementById('otpSection');
+    const forgotError = document.getElementById('forgotError');
+    if (forgotPasswordLink && forgotPasswordModal && closeModal) {
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            forgotPasswordModal.style.display = 'flex';
+            forgotError.innerText = '';
+            otpSection.style.display = 'none';
+            forgotPasswordForm.reset();
+        });
+        closeModal.addEventListener('click', function() {
+            forgotPasswordModal.style.display = 'none';
+        });
+        window.onclick = function(event) {
+            if (event.target === forgotPasswordModal) {
+                forgotPasswordModal.style.display = 'none';
+            }
+        };
+    }
+    if (sendOtpBtn && otpSection) {
+        sendOtpBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value;
+            if (!email) {
+                forgotError.innerText = 'Please enter your email.';
+                return;
+            }
+            // TODO: Integrate backend to send OTP
+            otpSection.style.display = '';
+            sendOtpBtn.disabled = true;
+            forgotError.innerText = 'OTP sent to your email (mock).';
+        });
+    }
+    if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            // TODO: Integrate backend to verify OTP and reset password
+            forgotError.innerText = 'Password reset functionality coming soon.';
         });
     }
 

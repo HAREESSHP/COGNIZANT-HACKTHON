@@ -1,3 +1,122 @@
+body {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #e7b6e7 0%, #c7e0f7 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-modern {
+    background: rgba(255,255,255,0.18);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+    border-radius: 18px;
+    padding: 48px 36px 36px 36px;
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    position: relative;
+}
+.login-icon {
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.login-title {
+    color: #fff;
+    font-size: 2.3rem;
+    font-weight: 400;
+    letter-spacing: 4px;
+    margin-bottom: 36px;
+    text-align: center;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+.login-form-modern {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.input-group {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border-bottom: 2px solid #5c6f8c;
+    margin-bottom: 0;
+    padding: 0 0 2px 0;
+}
+.input-icon {
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+}
+.input-group input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #fff;
+    font-size: 1.08rem;
+    padding: 10px 0;
+    flex: 1;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    letter-spacing: 1px;
+}
+.input-group input::placeholder {
+    color: #b0c4de;
+    opacity: 1;
+    font-size: 1.08rem;
+    letter-spacing: 1px;
+}
+.login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 10px 0;
+    font-size: 0.98rem;
+}
+.remember-me {
+    color: #e3eafc;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+.remember-me input[type="checkbox"] {
+    accent-color: #5c6f8c;
+    margin-right: 4px;
+}
+.forgot-link {
+    color: #b0c4de;
+    text-decoration: none;
+    font-style: italic;
+    font-size: 0.98rem;
+    transition: color 0.2s;
+}
+.forgot-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+.login-btn {
+    width: 100%;
+    background: #4a6fa1;
+    color: #fff;
+    border: none;
+    padding: 13px 0;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-top: 10px;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    cursor: pointer;
+}
+.login-btn:hover {
+    background: #395a7c;
+    transform: translateY(-2px) scale(1.01);
+}
 /* styles.css - MedAssist AI */
 body {
     background: linear-gradient(135deg, #e3f0ff 0%, #f9f9fb 100%);
@@ -10,10 +129,90 @@ body {
     max-width: 400px;
     margin: 60px auto;
     background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 6px 32px rgba(25, 118, 210, 0.10), 0 1.5px 6px rgba(0,0,0,0.06);
-    padding: 40px 32px;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(25, 118, 210, 0.13), 0 2px 8px rgba(0,0,0,0.07);
+    padding: 40px 32px 32px 32px;
     transition: box-shadow 0.2s;
+    position: relative;
+}
+.tab-group {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+.tab {
+    flex: 1;
+    padding: 12px 0;
+    background: none;
+    border: none;
+    border-bottom: 2.5px solid #e3eafc;
+    color: #1976d2;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border 0.2s, color 0.2s;
+}
+.tab.active {
+    border-bottom: 2.5px solid #1976d2;
+    color: #1565c0;
+}
+.form-footer {
+    text-align: right;
+    margin-top: 8px;
+}
+.form-footer a {
+    color: #1976d2;
+    text-decoration: none;
+    font-size: 0.98rem;
+    transition: color 0.2s;
+}
+.form-footer a:hover {
+    color: #1565c0;
+    text-decoration: underline;
+}
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background: rgba(25, 118, 210, 0.10);
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background: #fff;
+    margin: 10% auto;
+    padding: 32px 28px 24px 28px;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(25, 118, 210, 0.13);
+    max-width: 350px;
+    position: relative;
+    text-align: center;
+}
+.modal-content h3 {
+    color: #1976d2;
+    margin-bottom: 18px;
+}
+.modal-content input {
+    width: 100%;
+    margin-bottom: 14px;
+}
+.close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.close:hover {
+    color: #d32f2f;
 }
 .dashboard-container {
     max-width: 900px;
