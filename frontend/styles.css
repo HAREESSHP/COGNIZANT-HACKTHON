@@ -1,16 +1,16 @@
 body {
     min-height: 100vh;
-    background: linear-gradient(180deg, #e7b6e7 0%, #c7e0f7 100%);
+    background: linear-gradient(135deg, #e7b6e7 0%, #c7e0f7 100%);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .login-modern {
-    background: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.22);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
     border-radius: 18px;
-    padding: 48px 36px 36px 36px;
+    padding: 44px 36px 36px 36px;
     max-width: 400px;
     width: 100%;
     margin: 0 auto;
@@ -113,6 +113,10 @@ body {
     transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
     cursor: pointer;
 }
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    transition: box-shadow 0.2s;
+    animation: fadeInCard 0.7s cubic-bezier(.4,0,.2,1);
 .login-btn:hover {
     background: #395a7c;
     transform: translateY(-2px) scale(1.01);
@@ -134,6 +138,12 @@ body {
     padding: 40px 32px 32px 32px;
     transition: box-shadow 0.2s;
     position: relative;
+    width: 100%;
+    gap: 0;
+    background: rgba(255,255,255,0.10);
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.04);
 }
 .tab-group {
     display: flex;
@@ -159,6 +169,7 @@ body {
 .form-footer {
     text-align: right;
     margin-top: 8px;
+    animation: fadeInForm 0.5s cubic-bezier(.4,0,.2,1);
 }
 .form-footer a {
     color: #1976d2;
@@ -169,7 +180,7 @@ body {
 .form-footer a:hover {
     color: #1565c0;
     text-decoration: underline;
-}
+    background: rgba(255,255,255,0.10);
 /* Modal Styles */
 .modal {
     display: none;
@@ -178,7 +189,7 @@ body {
     left: 0;
     top: 0;
     width: 100vw;
-    height: 100vh;
+    background: transparent;
     overflow: auto;
     background: rgba(25, 118, 210, 0.10);
     justify-content: center;
@@ -196,7 +207,7 @@ body {
 }
 .modal-content h3 {
     color: #1976d2;
-    margin-bottom: 18px;
+    background: linear-gradient(90deg, #7c3aed 60%, #42a5f5 100%);
 }
 .modal-content input {
     width: 100%;
@@ -211,7 +222,7 @@ body {
     cursor: pointer;
     transition: color 0.2s;
 }
-.close:hover {
+    background: linear-gradient(90deg, #5b21b6 60%, #1976d2 100%);
     color: #d32f2f;
 }
 .dashboard-container {
@@ -220,6 +231,7 @@ body {
 }
 .login-card h2 {
     margin-bottom: 24px;
+    min-height: 22px;
     color: #1976d2;
     font-weight: 700;
     letter-spacing: 1px;
