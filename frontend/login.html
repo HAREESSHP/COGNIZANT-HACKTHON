@@ -3,20 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pharmacy Login</title>
+    <title>Login | MedAssist AI</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <div class="login-card">
-        <h2 style="text-align:center; font-size:2rem; margin-bottom:1.5rem;">💊 Pharmacy Login</h2>
-        <form id="loginForm" class="login-form-modern">
-            <input type="text" id="username" name="username" placeholder="Username" required autocomplete="username">
-            <input type="password" id="password" name="password" placeholder="Password" required autocomplete="current-password">
-            <button type="submit" class="login-btn">LOGIN</button>
-        </form>
-        <div style="margin-top:1.5rem; text-align:center;">
-            <a href="index.html" style="color:#1976d2; text-decoration:none; font-size:1rem;">&larr; Back to Home</a>
+<body class="auth-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                    </svg>
+                </div>
+                <h1 class="app-name">MedAssist AI</h1>
+                <p class="app-tagline">Real-time Multilingual Clinical Assistant</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="email" placeholder="doctor@clinic.com" required autocomplete="email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+                    </div>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    Sign In
+                </button>
+
+                <div class="form-footer">
+                    <p>Don't have an account? <a href="#">Contact Administration</a></p>
+                </div>
+            </form>
         </div>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Basic transition to dashboard for prototype
+            window.location.href = 'index.html';
+        });
+    </script>
 </body>
 </html>

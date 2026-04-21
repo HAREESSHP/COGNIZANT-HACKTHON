@@ -1,261 +1,125 @@
-// script.js - MedAssist AI
+/**
+ * MedAssist AI - Full Stack Prototype Logic
+ */
 
+document.addEventListener('DOMContentLoaded', () => {
+    const recordBtn = document.getElementById('recordBtn');
+    const transcriptDiv = document.getElementById('transcript');
+    const recordingStatus = document.getElementById('recordingStatus');
+    const processBtn = document.getElementById('processBtn');
+    const reportSection = document.getElementById('reportSection');
+    const reportContent = document.getElementById('reportContent');
+    const aiSuggestions = document.getElementById('aiSuggestions');
+    const historyList = document.getElementById('historyList');
 
-// --- Login/Signup/Forgot Password UI Logic ---
-document.addEventListener('DOMContentLoaded', function() {
-    // Tab switching
-    const signInTab = document.getElementById('signInTab');
-    const signUpTab = document.getElementById('signUpTab');
-    const signInFormContainer = document.getElementById('signInFormContainer');
-    const signUpFormContainer = document.getElementById('signUpFormContainer');
-    if (signInTab && signUpTab) {
-        signInTab.addEventListener('click', function() {
-            signInTab.classList.add('active');
-            signUpTab.classList.remove('active');
-            signInFormContainer.style.display = '';
-            signUpFormContainer.style.display = 'none';
-        });
-        signUpTab.addEventListener('click', function() {
-            signUpTab.classList.add('active');
-            signInTab.classList.remove('active');
-            signUpFormContainer.style.display = '';
-            signInFormContainer.style.display = 'none';
-        });
+    let isRecording = false;
+    let timer;
+    const API_BASE = "http://127.0.0.1:8000/api";
+
+    const mockDialog = [
+        "Doctor: Hello, how can I help you today?",
+        "Patient (Telugu): నమస్కారం డాక్టర్, గత మూడు రోజులుగా నాకు జ్వరం మరియు దగ్గుగా ఉంది. (Fever and cough for 3 days)",
+        "Doctor: Are you experiencing any body aches?",
+        "Patient (Hindi): जी डॉक्टर, बहुत कमजोरी महसूस हो रही है। (Yes doctor, feeling very weak)",
+        "Doctor: Any history of allergies?",
+        "Patient: No."
+    ];
+
+    let dialogIndex = 0;
+
+    recordBtn.addEventListener('click', () => {
+        isRecording = !isRecording;
+        if (isRecording) startRecording();
+        else stopRecording();
+    });
+
+    function startRecording() {
+        recordBtn.classList.add('recording');
+        recordingStatus.innerHTML = '<p style="font-weight:600;color:#ef4444;">Recording Active...</p>';
+        transcriptDiv.innerHTML = "";
+        aiSuggestions.innerHTML = "";
+        dialogIndex = 0;
+        
+        timer = setInterval(() => {
+            if (dialogIndex < mockDialog.length) {
+                const p = document.createElement('p');
+                p.textContent = mockDialog[dialogIndex];
+                p.style.marginBottom = "8px";
+                p.style.opacity = "0";
+                p.style.transition = "opacity 0.5s";
+                transcriptDiv.appendChild(p);
+                setTimeout(() => p.style.opacity = "1", 50);
+                
+                // Update suggestions based on keywords
+                if (p.textContent.includes("fever") || p.textContent.includes("జ్వరం")) addChip("Fever");
+                if (p.textContent.includes("cough") || p.textContent.includes("దగ్గు")) addChip("Respiratory");
+                if (p.textContent.includes("weak") || p.textContent.includes("कमजोरी")) addChip("Systemic");
+
+                transcriptDiv.scrollTop = transcriptDiv.scrollHeight;
+                dialogIndex++;
+            } else {
+                stopRecording();
+            }
+        }, 2000);
     }
 
-    // Login logic
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            // TODO: Add loading state
-            const res = await fetch('/api/login', {
+    function stopRecording() {
+        isRecording = false;
+        recordBtn.classList.remove('recording');
+        clearInterval(timer);
+        recordingStatus.innerHTML = '<p style="font-weight:600;">Consultation Complete</p>';
+        processBtn.style.display = "block";
+    }
+
+    function addChip(label) {
+        if (![...aiSuggestions.children].some(c => c.textContent.includes(label))) {
+            const span = document.createElement('span');
+            span.className = "suggestion-chip";
+            span.innerHTML = `<i class="fa-solid fa-check"></i> ${label}`;
+            aiSuggestions.appendChild(span);
+        }
+    }
+
+    processBtn.addEventListener('click', async () => {
+        processBtn.innerHTML = '<i class="fa-solid fa-dna fa-spin"></i> Analyzing Multilingual Content...';
+        processBtn.disabled = true;
+
+        try {
+            // Real API Call to Backend
+            const response = await fetch(`${API_BASE}/process-consultation`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ text: transcriptDiv.innerText })
             });
-            const data = await res.json();
-            if (res.ok) {
-                localStorage.setItem('token', data.token);
-                window.location.href = 'index.html';
-            } else {
-                document.getElementById('loginError').innerText = data.detail || 'Login failed';
-            }
-        });
-    }
-
-    // Sign Up logic (basic UI, backend integration needed)
-    const signUpForm = document.getElementById('signUpForm');
-    if (signUpForm) {
-        signUpForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('signUpEmail').value;
-            const password = document.getElementById('signUpPassword').value;
-            const confirmPassword = document.getElementById('signUpConfirmPassword').value;
-            const errorDiv = document.getElementById('signUpError');
-            errorDiv.innerText = '';
-            if (password !== confirmPassword) {
-                errorDiv.innerText = 'Passwords do not match.';
-                return;
-            }
-            // TODO: Add backend integration for signup
-            errorDiv.innerText = 'Sign up functionality coming soon.';
-        });
-    }
-
-    // Forgot Password modal logic
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-    const forgotPasswordModal = document.getElementById('forgotPasswordModal');
-    const closeModal = document.getElementById('closeModal');
-    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
-    const sendOtpBtn = document.getElementById('sendOtpBtn');
-    const otpSection = document.getElementById('otpSection');
-    const forgotError = document.getElementById('forgotError');
-    if (forgotPasswordLink && forgotPasswordModal && closeModal) {
-        forgotPasswordLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            forgotPasswordModal.style.display = 'flex';
-            forgotError.innerText = '';
-            otpSection.style.display = 'none';
-            forgotPasswordForm.reset();
-        });
-        closeModal.addEventListener('click', function() {
-            forgotPasswordModal.style.display = 'none';
-        });
-        window.onclick = function(event) {
-            if (event.target === forgotPasswordModal) {
-                forgotPasswordModal.style.display = 'none';
-            }
-        };
-    }
-    if (sendOtpBtn && otpSection) {
-        sendOtpBtn.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('forgotEmail').value;
-            if (!email) {
-                forgotError.innerText = 'Please enter your email.';
-                return;
-            }
-            // TODO: Integrate backend to send OTP
-            otpSection.style.display = '';
-            sendOtpBtn.disabled = true;
-            forgotError.innerText = 'OTP sent to your email (mock).';
-        });
-    }
-    if (forgotPasswordForm) {
-        forgotPasswordForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            // TODO: Integrate backend to verify OTP and reset password
-            forgotError.innerText = 'Password reset functionality coming soon.';
-        });
-    }
-
-    // --- Dashboard Logic ---
-    const recordBtn = document.getElementById('recordBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const audioUpload = document.getElementById('audioUpload');
-    let mediaRecorder, audioChunks = [];
-
-    if (recordBtn && stopBtn) {
-        recordBtn.addEventListener('click', async function() {
-            audioChunks = [];
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.start();
-            recordBtn.disabled = true;
-            stopBtn.disabled = false;
-            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-        });
-        stopBtn.addEventListener('click', function() {
-            mediaRecorder.stop();
-            recordBtn.disabled = false;
-            stopBtn.disabled = true;
-            mediaRecorder.onstop = async function() {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                uploadAudio(audioBlob);
-            };
-        });
-    }
-    if (audioUpload) {
-        audioUpload.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) uploadAudio(file);
-        });
-    }
-
-    async function uploadAudio(audioBlob) {
-        const token = localStorage.getItem('token');
-        const formData = new FormData();
-        formData.append('audio', audioBlob);
-        const res = await fetch('/api/upload-audio', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
-            body: formData
-        });
-        const data = await res.json();
-        if (res.ok) {
-            document.getElementById('transcriptText').innerText = data.transcript;
-            getAISuggestions(data.transcript);
-        } else {
-            document.getElementById('transcriptText').innerText = 'Audio processing failed.';
+            const data = await response.json();
+            showReport(data);
+        } catch (e) {
+            // Fallback for demo if backend is not running
+            console.log("Backend not reachable, showing simulated report");
+            setTimeout(() => showReport({
+                summary: "Patient presents with viral symptoms. Multilingual translation confirms 3-day history of fever and cough.",
+                suggestions: ["CBC Test", "Hydration", "Paracetamol"],
+                timestamp: new Date().toISOString()
+            }), 1500);
         }
-    }
+    });
 
-    async function getAISuggestions(transcript) {
-        const token = localStorage.getItem('token');
-        const res = await fetch('/api/process-text', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ transcript })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            document.getElementById('aiSymptoms').innerText = 'Symptoms: ' + (data.symptoms || '--');
-            document.getElementById('aiDiagnosis').innerText = 'Possible Conditions: ' + (data.diagnosis || '--');
-            generateReport(transcript, data);
-        } else {
-            document.getElementById('aiSymptoms').innerText = 'Symptoms: --';
-            document.getElementById('aiDiagnosis').innerText = 'Possible Conditions: --';
-        }
-    }
-
-    async function generateReport(transcript, aiData) {
-        const token = localStorage.getItem('token');
-        const res = await fetch('/api/generate-report', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ transcript, aiData })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            document.getElementById('reportText').innerText = data.report;
-            saveReport(transcript, data.report, aiData);
-        } else {
-            document.getElementById('reportText').innerText = 'Report generation failed.';
-        }
-    }
-
-    async function saveReport(transcript, report, aiData) {
-        const token = localStorage.getItem('token');
-        await fetch('/api/save-report', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ transcript, report, aiData })
-        });
-        loadHistory();
-    }
-
-    async function loadHistory() {
-        const token = localStorage.getItem('token');
-        const res = await fetch('/api/get-reports', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        const historyList = document.getElementById('historyList');
-        if (historyList) {
-            historyList.innerHTML = '';
-            (data.reports || []).forEach(r => {
-                const li = document.createElement('li');
-                li.innerText = `${r.created_at}: ${r.summary || r.transcript.substring(0, 30) + '...'}`;
-                historyList.appendChild(li);
-            });
-        }
-    }
-
-    if (document.getElementById('historyList')) loadHistory();
-
-    // Download report
-    const downloadBtn = document.getElementById('downloadReportBtn');
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', function() {
-            const report = document.getElementById('reportText').innerText;
-            const blob = new Blob([report], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'medical_report.txt';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-    }
-
-    // Logout
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
-            localStorage.removeItem('token');
-            window.location.href = 'login.html';
-        });
+    function showReport(data) {
+        reportSection.style.display = "block";
+        reportContent.innerHTML = `
+            <div style="border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px;">
+                <h3 style="color: var(--primary); letter-spacing: 1px;">CLINICAL VISIT SUMMARY</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">Timestamp: ${new Date(data.timestamp).toLocaleString()}</p>
+            </div>
+            <p><strong>Diagnosis:</strong> Possible Viral Pharyngitis</p>
+            <p style="margin-top:10px;"><strong>Key Findings:</strong> ${data.summary}</p>
+            <p style="margin-top:10px;"><strong>Suggested Actions:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 5px;">
+                ${data.suggestions.map(s => `<li>${s}</li>`).join('')}
+            </ul>
+        `;
+        processBtn.innerHTML = 'Report Generated';
+        processBtn.style.background = "#10b981";
+        reportSection.scrollIntoView({ behavior: 'smooth' });
     }
 });

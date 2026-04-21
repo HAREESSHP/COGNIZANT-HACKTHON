@@ -3,42 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedAssist AI - Dashboard</title>
+    <title>Dashboard | MedAssist AI</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Dashboard Specific Styles (to be moved to styles.css later) */
+        body {
+            background: #f8fafc;
+            display: block; /* Override flex from body */
+            align-items: initial;
+            justify-content: initial;
+        }
+
+        .dashboard-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            background: rgba(37, 99, 235, 0.08);
+            color: var(--primary);
+        }
+
+        .nav-item i {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* Dashboard Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Main Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
+
+        /* Recording Controls */
+        .recording-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-gradient);
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-record {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            transition: all 0.3s;
+        }
+
+        .btn-record.recording {
+            animation: pulse 1.5s infinite;
+            background: #dc2626;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Text Areas */
+        .transcript-area {
+            min-height: 300px;
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 15px;
+            color: var(--text-main);
+            border: 1px inset #eee;
+            margin-bottom: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .suggestion-chip {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-size: 13px;
+            margin: 0 8px 8px 0;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .report-preview {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 14px;
+            white-space: pre-line;
+            font-family: inherit;
+        }
+
+        /* History List */
+        .history-list {
+            list-style: none;
+        }
+
+        .history-item {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .history-item:hover {
+            background: #f8fafc;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .history-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <header>
-            <h1>MedAssist AI</h1>
-            <button id="logoutBtn">Logout</button>
-        </header>
-        <main>
-            <section class="card audio-section">
-                <h2>Audio Capture</h2>
-                <button id="recordBtn">Record</button>
-                <button id="stopBtn" disabled>Stop</button>
-                <input type="file" id="audioUpload" accept="audio/*">
-            </section>
-            <section class="card transcript-section">
-                <h2>Transcript</h2>
-                <div id="transcriptText">--</div>
-            </section>
-            <section class="card ai-section">
-                <h2>AI Suggestions</h2>
-                <div id="aiSymptoms">Symptoms: --</div>
-                <div id="aiDiagnosis">Possible Conditions: --</div>
-            </section>
-            <section class="card report-section">
-                <h2>Medical Report</h2>
-                <div id="reportText">--</div>
-                <button id="downloadReportBtn">Download Report</button>
-            </section>
-            <section class="card history-section">
-                <h2>History</h2>
-                <ul id="historyList"></ul>
-            </section>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-section" style="margin-bottom: 48px; text-align: left;">
+                <h2 class="app-name" style="font-size: 20px;">MedAssist AI</h2>
+            </div>
+
+            <nav>
+                <a href="#" class="nav-item active">
+                    <i class="fa-solid fa-house-medical"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-clock-rotate-left"></i> History
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-file-medical"></i> Templates
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-gear"></i> Settings
+                </a>
+            </nav>
+
+            <div style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border);">
+                <a href="login.html" class="nav-item" style="color: #ef4444;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div>
+                    <h1 style="font-size: 28px; font-weight: 700;">Clinical Dashboard</h1>
+                    <p style="color: var(--text-muted);">Welcome back, Dr. HAREESH</p>
+                </div>
+                <div class="user-profile">
+                    <div style="text-align: right;">
+                        <p style="font-weight: 600; font-size: 14px;">Dr. HAREESH</p>
+                        <p style="font-size: 12px; color: var(--text-muted);">Specialist Physician</p>
+                    </div>
+                    <div class="avatar">HP</div>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Left Column -->
+                <div class="left-col">
+                    <!-- Audio Recording Section -->
+                    <div class="card" style="margin-bottom: 24px;">
+                        <h2 class="card-title"><i class="fa-solid fa-microphone"></i> Live Consultation</h2>
+                        <div class="recording-box">
+                            <div id="recordingStatus">
+                                <p style="font-weight: 600; margin-bottom: 4px;">Start Recording</p>
+                                <p style="font-size: 13px; color: var(--text-muted);">Ready to capture consultation...</p>
+                            </div>
+                            <button id="recordBtn" class="btn-record">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                        </div>
+
+                        <h3 style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;">TRANSCRIPT (REAL-TIME)</h3>
+                        <div id="transcript" class="transcript-area">
+                            Waiting for audio input...
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px;">
+                            <button id="processBtn" class="login-btn" style="flex: 1; display: none;">
+                                Generate AI Report
+                            </button>
+                            <input type="file" id="audioUpload" style="display: none;">
+                            <button onclick="document.getElementById('audioUpload').click()" class="login-btn" style="flex: 1; background: white; color: var(--primary); border: 1.5px solid var(--primary);">
+                                Upload Audio File
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AI Report Section -->
+                    <div id="reportSection" class="card" style="display: none;">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-file-medical"></i> Structured Medical Report
+                            <button onclick="window.print()" style="margin-left: auto; background: none; border: none; color: var(--primary); cursor: pointer;">
+                                <i class="fa-solid fa-download"></i>
+                            </button>
+                        </h2>
+                        <div id="reportContent" class="report-preview">
+                            Processing consultation...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="right-col">
+                    <!-- AI Suggestions -->
+                    <div class="card" style="margin-bottom: 24px;">
+                        <h2 class="card-title"><i class="fa-solid fa-lightbulb"></i> AI Suggestions</h2>
+                        <div id="aiSuggestions">
+                            <p style="font-size: 13px; color: var(--text-muted);">Suggestions will appear here during live recording.</p>
+                        </div>
+                    </div>
+
+                    <!-- History -->
+                    <div class="card">
+                        <h2 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Visits</h2>
+                        <ul class="history-list" id="historyList">
+                            <li class="history-item">
+                                <p class="history-title">Patient #4021 - Cough/Fever</p>
+                                <p class="history-date">Today, 10:30 AM</p>
+                            </li>
+                            <li class="history-item">
+                                <p class="history-title">Patient #3988 - Annual Checkup</p>
+                                <p class="history-date">Yesterday, 4:15 PM</p>
+                            </li>
+                            <li class="history-item">
+                                <p class="history-title">Patient #3982 - Hypertension</p>
+                                <p class="history-date">Yesterday, 11:00 AM</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>

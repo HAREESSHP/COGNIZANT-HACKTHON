@@ -1,18 +1,14 @@
-from fastapi import FastAPI, File, UploadFile, Depends, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
- # ...existing code...
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import List, Optional
-from datetime import datetime, timedelta
-import uvicorn
 import sqlite3
-import secrets
 import os
+from datetime import datetime
+import time
 
-app = FastAPI()
+app = FastAPI(title="MedAssist AI API")
 
-# CORS for frontend
+# Enable CORS for frontend interaction
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,124 +17,83 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'database.db')
+DB_PATH = "medassist.db"
 
-def get_db():
+def init_db():
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-def create_tables():
-    conn = get_db()
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        email TEXT UNIQUE,
-        password TEXT
-    )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS reports (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        transcript TEXT,
-        summary TEXT,
-        suggestions TEXT,
-        created_at TEXT,
-        FOREIGN KEY(user_id) REFERENCES users(id)
-    )''')
+    cursor = conn.cursor()
+    # Users table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users 
+                     (id INTEGER PRIMARY KEY, name TEXT, email TEXT UNIQUE, password TEXT)''')
+    # Reports table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS reports 
+                     (id INTEGER PRIMARY KEY, transcript TEXT, summary TEXT, suggestions TEXT, created_at TEXT)''')
+    
+    # Seed a demo user if not exists
+    try:
+        cursor.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", 
+                      ("Dr. HAREESH", "doctor@clinic.com", "password123"))
+    except sqlite3.IntegrityError:
+        pass
+        
     conn.commit()
     conn.close()
 
-create_tables()
-
-# Simple token-based auth (for demo only)
-tokens = {}
-
-def authenticate(email, password):
-    conn = get_db()
-    c = conn.cursor()
-    c.execute('SELECT * FROM users WHERE email=? AND password=?', (email, password))
-    user = c.fetchone()
-    conn.close()
-    return user
-
-def get_user_by_token(token):
-    return tokens.get(token)
+init_db()
 
 # Models
-class LoginRequest(BaseModel):
+class LoginData(BaseModel):
     email: str
     password: str
 
-class LoginResponse(BaseModel):
-    token: str
+class TranscriptData(BaseModel):
+    text: str
 
-class TranscriptRequest(BaseModel):
-    transcript: str
+@app.post("/api/login")
+async def login(data: LoginData):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE email=? AND password=?", (data.email, data.password))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if user:
+        return {"status": "success", "user": {"id": user[0], "name": user[1], "email": user[2]}}
+    raise HTTPException(status_code=401, detail="Invalid credentials")
 
-class AIData(BaseModel):
-    symptoms: Optional[str] = None
-    diagnosis: Optional[str] = None
-
-class ReportRequest(BaseModel):
-    transcript: str
-    aiData: dict
-
-class SaveReportRequest(BaseModel):
-    transcript: str
-    report: str
-    aiData: dict
-
-@app.post('/api/login')
-def login(req: LoginRequest):
-    user = authenticate(req.email, req.password)
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    token = secrets.token_hex(16)
-    tokens[token] = dict(user)
-    return {"token": token}
-
-@app.post('/api/upload-audio')
-def upload_audio(audio: UploadFile = File(...), token: str = Depends(lambda: None)):
-    # For demo: fake transcript
-    transcript = "This is a sample transcript from audio."
-    return {"transcript": transcript}
-
-@app.post('/api/process-text')
-def process_text(req: TranscriptRequest, token: str = Depends(lambda: None)):
-    # For demo: fake AI output
-    return {"symptoms": "Fever, cough", "diagnosis": "Common cold"}
-
-@app.post('/api/generate-report')
-def generate_report(req: ReportRequest, token: str = Depends(lambda: None)):
-    # For demo: simple report
-    report = f"Visit Summary:\nSymptoms: {req.aiData.get('symptoms')}\nDiagnosis: {req.aiData.get('diagnosis')}\nTranscript: {req.transcript}"
-    return {"report": report}
-
-@app.post('/api/save-report')
-def save_report(req: SaveReportRequest, token: str = Depends(lambda: None)):
-    user = get_user_by_token(token)
-    if not user:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    conn = get_db()
-    c = conn.cursor()
-    c.execute('INSERT INTO reports (user_id, transcript, summary, suggestions, created_at) VALUES (?, ?, ?, ?, ?)',
-        (user['id'], req.transcript, req.report, str(req.aiData), datetime.now().isoformat()))
+@app.post("/api/process-consultation")
+async def process(data: TranscriptData):
+    # Simulate AI Processing delay
+    time.sleep(1.5)
+    
+    # Mock AI Extraction Logic
+    summary = f"Structured clinical summary for: {data.text[:50]}..."
+    suggestions = ["Fever Management", "Blood Test (CBC)", "Rest Recommendation"]
+    
+    # Save to DB
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO reports (transcript, summary, suggestions, created_at) VALUES (?, ?, ?, ?)",
+                  (data.text, summary, ", ".join(suggestions), datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     conn.commit()
     conn.close()
-    return {"status": "ok"}
+    
+    return {
+        "summary": summary,
+        "suggestions": suggestions,
+        "timestamp": datetime.now().isoformat()
+    }
 
-@app.get('/api/get-reports')
-def get_reports(token: str = Depends(lambda: None)):
-    user = get_user_by_token(token)
-    if not user:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    conn = get_db()
-    c = conn.cursor()
-    c.execute('SELECT * FROM reports WHERE user_id=? ORDER BY created_at DESC', (user['id'],))
-    reports = [dict(r) for r in c.fetchall()]
+@app.get("/api/history")
+async def get_history():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM reports ORDER BY id DESC LIMIT 10")
+    rows = cursor.fetchall()
     conn.close()
-    return {"reports": reports}
+    
+    return [{"id": r[0], "transcript": r[1], "summary": r[2], "suggestions": r[3], "date": r[4]} for r in rows]
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
