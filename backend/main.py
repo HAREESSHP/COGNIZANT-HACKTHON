@@ -61,14 +61,37 @@ async def login(data: LoginData):
         return {"status": "success", "user": {"id": user[0], "name": user[1], "email": user[2]}}
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
+@app.post("/api/upload-audio")
+async def upload_audio(file: UploadFile = File(...)):
+    # In a real app, you would send this to Whisper/Google STT
+    # For the hackathon demo, we'll simulate processing and return a transcript
+    time.sleep(3)
+    return {
+        "status": "success",
+        "filename": file.filename,
+        "transcript": "Doctor: Please describe your symptoms. Patient: I have been feeling very weak and have a persistent dry cough for the last four days. My chest feels slightly heavy."
+    }
+
 @app.post("/api/process-consultation")
 async def process(data: TranscriptData):
     # Simulate AI Processing delay
-    time.sleep(1.5)
+    time.sleep(2)
     
-    # Mock AI Extraction Logic
-    summary = f"Structured clinical summary for: {data.text[:50]}..."
-    suggestions = ["Fever Management", "Blood Test (CBC)", "Rest Recommendation"]
+    text = data.text.lower()
+    
+    # "AI" Logic: Detect intent and symptoms
+    if "fever" in text or "jwar" in text:
+        summary = "Patient reports a history of persistent fever. Physical examination recommended to rule out underlying infection."
+        suggestions = ["Paracetamol 500mg", "Complete Blood Count", "Monitor temperature every 4 hours"]
+    elif "cough" in text or "khansi" in text:
+        summary = "Patient presents with a productive cough. Suspected upper respiratory tract infection."
+        suggestions = ["Cough Suppressant", "Chest X-Ray if persistent", "Steam inhalation"]
+    elif "chest pain" in text:
+        summary = "CRITICAL: Patient reported chest pain. Immediate ECG and cardiac enzyme panel required."
+        suggestions = ["Stat ECG", "Refer to Cardiology", "Oxygen saturation monitoring"]
+    else:
+        summary = "General consultation for non-specific malaise. Observation recommended."
+        suggestions = ["Vitamin Supplements", "Adequate Hydration", "Follow-up if symptoms worsen"]
     
     # Save to DB
     conn = sqlite3.connect(DB_PATH)
@@ -88,7 +111,7 @@ async def process(data: TranscriptData):
 async def get_history():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM reports ORDER BY id DESC LIMIT 10")
+    cursor.execute("SELECT id, transcript, summary, suggestions, created_at FROM reports ORDER BY id DESC LIMIT 10")
     rows = cursor.fetchall()
     conn.close()
     

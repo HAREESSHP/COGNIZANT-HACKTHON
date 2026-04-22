@@ -11,17 +11,12 @@
 <body class="auth-page">
     <div class="login-container">
         <div class="login-card">
-            <div class="logo-section">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                    </svg>
-                </div>
-                <h1 class="app-name">MedAssist AI</h1>
-                <p class="app-tagline">Real-time Multilingual Clinical Assistant</p>
-            </div>
-
             <form id="loginForm">
+                <div id="authTitle">
+                    <h1 class="app-name">MedAssist AI</h1>
+                    <p class="app-tagline">Real-time Multilingual Clinical Assistant</p>
+                </div>
+
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <div class="input-wrapper">
@@ -35,22 +30,49 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="login-btn">
+                <button type="submit" id="authBtn" class="login-btn">
                     Sign In
                 </button>
 
                 <div class="form-footer">
-                    <p>Don't have an account? <a href="#">Contact Administration</a></p>
+                    <p id="toggleAuth">Don't have an account? <a href="#" onclick="toggleAuth(event)">Sign Up</a></p>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        let isLogin = true;
+
+        function toggleAuth(e) {
             e.preventDefault();
-            // Basic transition to dashboard for prototype
-            window.location.href = 'index.html';
+            isLogin = !isLogin;
+            const btn = document.getElementById('authBtn');
+            const toggle = document.getElementById('toggleAuth');
+            const title = document.querySelector('.app-tagline');
+
+            if (isLogin) {
+                btn.textContent = 'Sign In';
+                toggle.innerHTML = 'Don\'t have an account? <a href="#" onclick="toggleAuth(event)">Sign Up</a>';
+                title.textContent = 'Real-time Multilingual Clinical Assistant';
+            } else {
+                btn.textContent = 'Create Account';
+                toggle.innerHTML = 'Already have an account? <a href="#" onclick="toggleAuth(event)">Sign In</a>';
+                title.textContent = 'Join the future of clinical documentation';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('authBtn');
+            const originalText = btn.textContent;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            // Simulate API delay
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
         });
     </script>
 </body>
